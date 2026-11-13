@@ -93,7 +93,7 @@ const FK='collec-fav-v1';let FAV=new Set();try{FAV=new Set(JSON.parse(localStora
 const fk=r=>r.name+'|'+r.c.n+'|'+r.d;
 function saveFav(){try{localStorage.setItem(FK,JSON.stringify([...FAV]))}catch(e){}}
 const JQ={};let HASJQ=false;const RG={'PAL (Europe)':'eu','JP (Japon)':'jp','NTSC-U (Amérique)':'us'};
-const jqSeq=r=>{const j=JQ[r.name+'|'+r.c.n];return [...new Set([j&&j[2],RG[r.c.r],'wor','us','eu','jp'].filter(Boolean))]};
+const jqSeq=r=>{const j=JQ[r.name+'|'+r.c.n];return j&&j[2]?[j[2]]:[...new Set([RG[r.c.r],'wor','us','eu','jp'])]};
 function jqUrl(r,reg,w,h){const j=JQ[r.name+'|'+r.c.n];return j&&j[2]!==0?`https://screenscraper.fr/image.php?plateformid=${j[1]}&gameid=${j[0]}&media=box-2D&hd=0&region=${reg}&num=&version=&maxwidth=${w}&maxheight=${h}`:''}
 function jqImg(r,w,h,cls){const u=jqUrl(r,jqSeq(r)[0],w,h);return u?`<img class="${cls}" loading="lazy" referrerpolicy="no-referrer" alt="Jaquette" src="${u}" data-rg="0" data-ri="${r.i}" data-w="${w}" data-h="${h}" onerror="jqErr(this)">`:'<span class="mut">—</span>'}
 function jqErr(e){const r=R[+e.dataset.ri],q=jqSeq(r),n=+e.dataset.rg+1;if(n<q.length){e.dataset.rg=n;e.src=jqUrl(r,q[n],e.dataset.w,e.dataset.h)}else{const s=document.createElement('span');s.className='mut';s.textContent='—';e.replaceWith(s)}}
