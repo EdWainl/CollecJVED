@@ -39,6 +39,7 @@ dialog{border:1px solid var(--line);border-radius:12px;background:var(--card);co
 .lvls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}.lvls .seg,h2 .seg{margin:0 8px 0 0}
 img.dk{display:none}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) img.lt{display:none}:root:not([data-theme="light"]) img.dk{display:inline-block}}:root[data-theme="dark"] img.lt{display:none}:root[data-theme="dark"] img.dk{display:inline-block}
 .plogo.wb{background:#fff;border-radius:6px;padding:3px 8px}
+.jqw{position:relative;display:inline-block}.jqb{position:absolute;right:0;bottom:0;background:#c0392b;color:#fff;font:700 9px/1 system-ui,sans-serif;padding:2px 3px;border-radius:3px 0 3px 0;font-style:normal}
 </style></head><body><div class="wrap">
 <h1>Ma collection de jeux vidéo</h1>
 <div class="mut" id="sub"></div>
@@ -93,10 +94,12 @@ const FK='collec-fav-v1';let FAV=new Set();try{FAV=new Set(JSON.parse(localStora
 const fk=r=>r.name+'|'+r.c.n+'|'+r.d;
 function saveFav(){try{localStorage.setItem(FK,JSON.stringify([...FAV]))}catch(e){}}
 const JQ={};let HASJQ=false;const RG={'PAL (Europe)':'eu','JP (Japon)':'jp','NTSC-U (Amérique)':'us'};
-const jqSeq=r=>{const j=JQ[r.name+'|'+r.c.n];return j&&j[2]?[j[2]]:[...new Set([RG[r.c.r],'wor','us','eu','jp'])]};
+const jqSeq=r=>{const j=JQ[r.name+'|'+r.c.n];return j&&j[2]?[j[2]]:FB[RGN[r.c.r]]};
 function jqUrl(r,reg,w,h){const j=JQ[r.name+'|'+r.c.n];return j&&j[2]!==0?`https://screenscraper.fr/image.php?plateformid=${j[1]}&gameid=${j[0]}&media=box-2D&hd=0&region=${reg}&num=&version=&maxwidth=${w}&maxheight=${h}`:''}
-function jqImg(r,w,h,cls){const u=jqUrl(r,jqSeq(r)[0],w,h);return u?`<img class="${cls}" loading="lazy" referrerpolicy="no-referrer" alt="Jaquette" src="${u}" data-rg="0" data-ri="${r.i}" data-w="${w}" data-h="${h}" onerror="jqErr(this)">`:'<span class="mut">—</span>'}
-function jqErr(e){const r=R[+e.dataset.ri],q=jqSeq(r),n=+e.dataset.rg+1;if(n<q.length){e.dataset.rg=n;e.src=jqUrl(r,q[n],e.dataset.w,e.dataset.h)}else{const s=document.createElement('span');s.className='mut';s.textContent='—';e.replaceWith(s)}}
+const ACC={PAL:['eu','fr','uk','de','sp','it','au','oce','nl','se','pt','no','dk','fi','wor'],JP:['ja','jp','asi'],US:['us','ame','wor','ca']},FB={PAL:['eu','fr','uk','de','sp','it','wor','us'],JP:['ja','jp','asi','wor','us'],US:['us','wor','eu']},RGN={'PAL (Europe)':'PAL','JP (Japon)':'JP','NTSC-U (Amérique)':'US'};
+function jqMis(r){const j=JQ[r.name+'|'+r.c.n];return j&&j[2]&&!(ACC[RGN[r.c.r]]||[]).includes(j[2])?j[2]:''}
+function jqImg(r,w,h,cls){const u=jqUrl(r,jqSeq(r)[0],w,h);if(!u)return '<span class="mut">\u2014</span>';const m=jqMis(r),im=`<img class="${cls}" loading="lazy" referrerpolicy="no-referrer" alt="Jaquette" src="${u}" data-rg="0" data-ri="${r.i}" data-w="${w}" data-h="${h}" onerror="jqErr(this)">`;return m?`<span class="jqw">${im}<i class="jqb" title="Jaquette d\u2019une autre r\u00e9gion (${m.toUpperCase()}) : celle de la bonne r\u00e9gion n\u2019existe pas sur ScreenScraper">${m.toUpperCase()}</i></span>`:im}
+function jqErr(e){const r=R[+e.dataset.ri],q=jqSeq(r),n=+e.dataset.rg+1;if(n<q.length){e.dataset.rg=n;e.src=jqUrl(r,q[n],e.dataset.w,e.dataset.h)}else{const s=document.createElement('span');s.className='mut';s.textContent='\u2014';(e.closest('.jqw')||e).replaceWith(s)}}
 const tl=t=>t.replace(/(\d{4})-T(\d)/,'T$2 $1');
 const autoLv=()=>{const i=LV.findIndex(l=>!F[l]);return i<0?2:i},curLv=()=>LO!=null?LO:autoLv();
 function lvl(j){LV.slice(j).forEach(l=>F[l]=null);LO=autoLv()!==j?j:null}
